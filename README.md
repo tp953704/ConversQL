@@ -1,6 +1,6 @@
 # ConversQL 
 
-這是一個基於 FastAPI 的應用程式，它利用 AI 代理（由 Ollama 和 LangChain 提供支援）透過「方法性對話協議（Methodical Conversation Protocol, MCP）」與 Oracle 資料庫進行互動。
+這是一個基於 FastAPI 的應用程式，它利用 AI 代理（由 Ollama 和 LangChain 提供支援）透過 模型上下文協議（Model Context Protocol，MCP）與 Oracle 資料庫進行互動。
 
 使用者可以透過一個簡單的 API 端點，使用自然語言來查詢資料庫。
 
