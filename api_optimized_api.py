@@ -1,6 +1,7 @@
 import contextlib
 import json
 import logging
+import os
 from typing import Any, AsyncIterator, Dict, Optional, Union
 import asyncio
 import httpx
@@ -159,19 +160,21 @@ async def query_ai(request: AIQueryRequest):
     Endpoint for AI queries using MCP tools
     """
     client = MCPClient(
-        base_url="http://localhost:8000",
+        base_url=os.getenv("MCP_BASE_URL", "http://localhost:8000"),
         ollama_config={
-            "base_url": "http://192.168.8.111:11434",
-            "model": "qwen3:32b",
-            "temperature": 0.5,
-            "max_tokens": 1000
+            "base_url": os.getenv("OLLAMA_BASE_URL", "http://192.168.8.111:11434"),
+            "model": os.getenv("OLLAMA_MODEL", "qwen3:32b"),
+            "temperature": float(os.getenv("OLLAMA_TEMPERATURE", 0.5)),
+            "max_tokens": int(os.getenv("OLLAMA_MAX_TOKENS", 1000))
         }
     )
     
     try:
+        # The path inside the container will be /app/sqlcheckmcpserver.py
+        sql_mcp_server_path = os.getenv("SQL_MCP_SERVER_PATH", "/app/sqlcheckmcpserver.py")
         client.configure_stdio_server(
             command="python",
-            args=["/Users/tp953704/Desktop/aibanksql-AItool/sql-mcp-client/sqlcheckmcpserver.py"],
+            args=[sql_mcp_server_path],
         )
         response = await client.ai_query(request.query)
         return {"response": response}
