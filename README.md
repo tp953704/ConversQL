@@ -1,4 +1,4 @@
-# SQL MCP Client
+# ConversQL 
 
 這是一個基於 FastAPI 的應用程式，它利用 AI 代理（由 Ollama 和 LangChain 提供支援）透過「方法性對話協議（Methodical Conversation Protocol, MCP）」與 Oracle 資料庫進行互動。
 
