@@ -16,7 +16,8 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from pydantic import BaseModel
 import uvicorn
-
+from fastapi import WebSocket, WebSocketDisconnect
+from fastapi.responses import HTMLResponse
 # Load environment variables
 load_dotenv()
 
@@ -184,6 +185,47 @@ async def query_ai(request: AIQueryRequest):
     finally:
         await client.close()
 
+@app.websocket("/ws/ai/query")
+async def websocket_ai_query(websocket: WebSocket):
+    await websocket.accept()
+    client = None
+    
+    try:
+        # Initialize client (same as HTTP version)
+        client = MCPClient(
+            base_url=os.getenv("MCP_BASE_URL", "http://localhost:8000"),
+            ollama_config={
+                "base_url": os.getenv("OLLAMA_BASE_URL", "http://192.168.8.111:11434"),
+                "model": os.getenv("OLLAMA_MODEL", "qwen3:32b"),
+                "temperature": float(os.getenv("OLLAMA_TEMPERATURE", 0.5)),
+                "max_tokens": int(os.getenv("OLLAMA_MAX_TOKENS", 1000))
+            }
+        )
+        
+        # Configure stdio server
+        sql_mcp_server_path = os.getenv("SQL_MCP_SERVER_PATH", "/app/sqlcheckmcpserver.py")
+        client.configure_stdio_server(
+            command="python",
+            args=[sql_mcp_server_path],
+        )
+
+        while True:
+            # Receive query from client
+            query = await websocket.receive_text()
+            
+            # Process query and send back response
+            response = await client.ai_query(query)
+            cleaned_response = response.replace('<think>', '').replace('</think>', '').strip()
+            await websocket.send_text(cleaned_response)
+            
+    except WebSocketDisconnect:
+        logger.info("WebSocket disconnected")
+    except Exception as e:
+        logger.error(f"WebSocket error: {str(e)}")
+        await websocket.send_text(f"Error: {str(e)}")
+    finally:
+        if client:
+            await client.close()
 
 def run_server():
     """Run the FastAPI server"""
