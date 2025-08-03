@@ -12,8 +12,7 @@ COPY pyproject.toml uv.lock ./
 
 # 使用 uv 安裝依賴
 # 這會讀取 pyproject.toml 並安裝鎖定版本的依賴
-RUN uv pip sync
-
+RUN uv pip install . --system
 # 複製所有專案檔案到工作目錄
 COPY . .
 
