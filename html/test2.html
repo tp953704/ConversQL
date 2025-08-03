@@ -58,8 +58,11 @@
       socket.onmessage = (event) => {
         const resultDiv = document.getElementById('results');
         resultDiv.textContent += event.data + '\n\n';
+         console.log("ws finish"+currentIndex);
         currentIndex++;
+        
         if (currentIndex < groups.length) {
+          console.log("ws start"+currentIndex);
           const query = createQueryPayload(groups[currentIndex]);
           socket.send(query);
         }
@@ -139,10 +142,9 @@
       currentIndex = 0;
       if (groups.length > 0) {
         try {
-          console.log("ws connect");
+          console.log("ws connect 0");
           const query = createQueryPayload(group);
           socket.send(query);
-          console.log("ws finish");
         } catch (error) {
           resultDiv.textContent += `錯誤處理：\n${group}\n錯誤：${error.message}\n\n`;
         }
