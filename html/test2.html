@@ -16,9 +16,9 @@
 </head>
 <body>
   <h2>請輸入資料</h2>
-  <textarea id="inputBox" placeholder="貼上你的內容..."></textarea>
+  <textarea id="inputBox" maxlength="2000" placeholder="貼上你的內容..."></textarea>
   <br>
-  <button onclick="handleSubmit()">開始分組並送出</button>
+  <button onclick="handleSubmit()">開始分組並送出 (限制字數 2000)</button>
 
   <div id="status" class="status disconnected">狀態: 未連接</div>
 
@@ -60,7 +60,7 @@
         resultDiv.textContent += event.data + '\n\n';
          console.log("ws finish"+currentIndex);
         currentIndex++;
-        
+
         if (currentIndex < groups.length) {
           console.log("ws start"+currentIndex);
           const query = createQueryPayload(groups[currentIndex]);
@@ -71,7 +71,7 @@
 
     function parseGroups(text) {
       const lines = text.trim().split(/\r?\n/);
-      const groups = [];
+      groups = [];
       let group = [];
       let selectCount = 0;
 
@@ -121,6 +121,12 @@
         - 若有問題，請說明原因，並盡可能提供修正建議。
         6. 所有 sql 語句中 DBUSERNEB. 皆可忽略 table name 也忽略它
         7. 部分 sql 語句 會用多行表示，請觀察分號位置
+        8. 只要回覆我审核报告
+        
+        ### 审核报告
+        | 语句人名1:人名2 需求  | 风险类型 | 风险描述                  | 修正建议              |  
+        |---------|---------|--------------------------|---------------------|  
+        | 1       | 显性    | 字段长度溢出：varchar(10) ← '超长文本' | 截断或修改 DDL      |  
         請開始分析以下SQL腳本：
         ${query}
       `;
@@ -130,7 +136,7 @@
       const input = document.getElementById('inputBox').value;
       const resultDiv = document.getElementById('results');
       resultDiv.textContent = "";
-      groups = [];
+
       if (!socket || socket.readyState !== WebSocket.OPEN) {
         resultDiv.textContent = '錯誤: WebSocket未連接';
         return;
@@ -143,10 +149,10 @@
       if (groups.length > 0) {
         try {
           console.log("ws connect 0");
-          const query = createQueryPayload(group);
+          const query = createQueryPayload(groups[currentIndex]);
           socket.send(query);
         } catch (error) {
-          resultDiv.textContent += `錯誤處理：\n${group}\n錯誤：${error.message}\n\n`;
+          resultDiv.textContent += `錯誤處理：\n${groups[currentIndex]}\n錯誤：${error.message}\n\n`;
         }
       }
     }
