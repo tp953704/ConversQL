@@ -57,7 +57,7 @@
 
       socket.onmessage = (event) => {
         const resultDiv = document.getElementById('results');
-         const match = event.data.match(/<result>([\s\S]*?)<\/result>/);
+         const match = event.data.match(/<Result>([\s\S]*?)<\/Result>/);
           const resultText = match ? match[1].trim() : '[無結果]';
 
           resultDiv.textContent += resultText + '\n\n';
